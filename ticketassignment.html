@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Zendesk | Ticket Assignment Management</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#F4F5FB;
+padding:30px;
+}
+
+.header{
+background:#5B4BAA;
+color:white;
+padding:20px;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.header button{
+background:white;
+color:#5B4BAA;
+padding:10px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.container{
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+.menu{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:25px;
+}
+
+.menu button{
+background:#5B4BAA;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.menu button:hover{
+background:#47358E;
+}
+
+.section{
+display:none;
+margin-top:20px;
+}
+
+.section h2{
+margin-bottom:15px;
+color:#5B4BAA;
+}
+
+input,select{
+width:250px;
+padding:12px;
+margin:8px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button.action{
+background:#5B4BAA;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+}
+
+button.action:hover{
+background:#47358E;
+}
+
+.deleteBtn{
+background:#E53935;
+}
+
+.deleteBtn:hover{
+background:#B71C1C;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th{
+background:#5B4BAA;
+color:white;
+padding:12px;
+}
+
+th,td{
+padding:12px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+#result{
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>🎫 Ticket Assignment Management</h1>
+
+<button onclick="goDashboard()">
+Back Dashboard
+</button>
+
+</div>
+
+<div class="container">
+
+<div class="menu">
+
+<button onclick="showSection('addSection')">
+➕ Add Assignment
+</button>
+
+<button onclick="showSection('searchSection')">
+🔍 Search Assignment
+</button>
+
+<button onclick="showSection('viewSection');getAll();">
+📋 View All
+</button>
+
+<button onclick="showSection('updateSection')">
+✏ Update Assignment
+</button>
+
+<button onclick="showSection('patchSection')">
+📝 Patch Assignment
+</button>
+
+<button onclick="showSection('deleteSection')">
+🗑 Delete Assignment
+</button>
+
+</div>
+
+<!-- ADD -->
+
+<div id="addSection" class="section">
+
+<h2>Add Ticket Assignment</h2>
+
+<input type="number" id="id" placeholder="Assignment ID">
+
+<input type="number" id="ticketid" placeholder="Ticket ID">
+
+<input type="number" id="agentid" placeholder="Agent ID">
+
+<input type="text" id="assigneddate" placeholder="Assigned Date YYYY-MM-DD">
+
+<input type="text" id="assignmentstatus" placeholder="Assignment Status">
+
+<br>
+
+<button class="action" onclick="addAssignment()">
+Save Assignment
+</button>
+
+</div>
+
+<!-- SEARCH -->
+
+<div id="searchSection" class="section">
+
+<h2>Search Assignment</h2>
+
+<input type="number" id="searchId" placeholder="Assignment ID">
+
+<button class="action" onclick="getById()">
+Search
+</button>
+
+<div id="searchResult"></div>
+
+</div>
+
+<!-- VIEW -->
+
+<div id="viewSection" class="section">
+
+<h2>All Ticket Assignments</h2>
+
+<div id="viewResult"></div>
+
+</div>
+
+<!-- UPDATE -->
+
+<div id="updateSection" class="section">
+
+<h2>Update Assignment</h2>
+
+<input type="number" id="updateId" placeholder="Assignment ID">
+
+<input type="number" id="updateTicketid" placeholder="Ticket ID">
+
+<input type="number" id="updateAgentid" placeholder="Agent ID">
+
+<input type="text" id="updateDate" placeholder="Assigned Date">
+
+<input type="text" id="updateStatus" placeholder="Assignment Status">
+
+<br>
+
+<button class="action" onclick="updateAssignment()">
+Update Assignment
+</button>
+
+</div>
+
+<!-- PATCH -->
+
+<div id="patchSection" class="section">
+
+<h2>Patch Assignment</h2>
+
+<input type="number" id="patchId" placeholder="Assignment ID">
+
+<input type="number" id="patchTicketid" placeholder="New Ticket ID">
+
+<input type="number" id="patchAgentid" placeholder="New Agent ID">
+
+<input type="text" id="patchDate" placeholder="New Assigned Date">
+
+<input type="text" id="patchStatus" placeholder="New Status">
+
+<br>
+
+<button class="action" onclick="patchAssignment()">
+Patch Assignment
+</button>
+
+</div>
+
+<!-- DELETE -->
+
+<div id="deleteSection" class="section">
+
+<h2>Delete Assignment</h2>
+
+<input type="number" id="deleteId" placeholder="Assignment ID">
+
+<button class="action deleteBtn" onclick="deleteAssignment()">
+Delete Assignment
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const BASE_URL = "https://zendeskbackend2-0.onrender.com/assignment";
+
+function goDashboard(){
+    window.location.href = "dashboard.html";
+}
+
+function showSection(id){
+    let sections = document.querySelectorAll(".section");
+    sections.forEach(function(sec){
+        sec.style.display = "none";
+    });
+    document.getElementById(id).style.display = "block";
+}
+
+window.onload = function(){
+    showSection("addSection");
+};
+
+function getHeaders(){
+    const headers = {
+        "Content-Type": "application/json"
+    };
+    const tokenVal = localStorage.getItem("token");
+    if (tokenVal && tokenVal !== "null" && tokenVal !== "undefined") {
+        headers["Authorization"] = "Bearer " + tokenVal;
+    }
+    return headers;
+}
+
+// ===================== ADD =====================
+
+async function addAssignment(){
+
+    let data = {
+        id: Number(document.getElementById("id").value),
+        ticketid: Number(document.getElementById("ticketid").value),
+        agentid: Number(document.getElementById("agentid").value),
+        assigneddate: document.getElementById("assigneddate").value,
+        assignmentstatus: document.getElementById("assignmentstatus").value
+    };
+
+    let res = await fetch(BASE_URL + "/ass/", {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Assignment Added Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Add Failed: " + await res.text());
+    }
+}
+
+// ===================== GET ALL =====================
+
+async function getAll(){
+
+    let res = await fetch(BASE_URL + "/ass", {
+        method: "GET",
+        headers: getHeaders()
+    });
+
+    let data = await res.json();
+
+    let html = `
+    <table>
+    <tr>
+    <th>ID</th>
+    <th>Ticket ID</th>
+    <th>Agent ID</th>
+    <th>Assigned Date</th>
+    <th>Status</th>
+    <th>Actions</th>
+    </tr>
+    `;
+
+    data.forEach(a => {
+        html += `
+        <tr>
+        <td>${a.id}</td>
+        <td>${a.ticketid}</td>
+        <td>${a.agentid}</td>
+        <td>${a.assigneddate}</td>
+        <td>${a.assignmentstatus}</td>
+        <td>
+            <button style="margin:2px;padding:6px 12px;" onclick="editAssignmentRow(${JSON.stringify(a).replace(/"/g, '&quot;')})">Edit</button>
+            <button class="deleteBtn" style="margin:2px;padding:6px 12px;" onclick="deleteAssignmentRow(${a.id})">Delete</button>
+        </td>
+        </tr>
+        `;
+    });
+
+    html += "</table>";
+    document.getElementById("viewResult").innerHTML = html;
+}
+
+// ===================== GET BY ID =====================
+
+async function getById(){
+
+    let id = document.getElementById("searchId").value;
+
+    let res = await fetch(BASE_URL + "/ass/" + id, {
+        method: "GET",
+        headers: getHeaders()
+    });
+
+    if(res.ok){
+        let a = await res.json();
+        document.getElementById("searchResult").innerHTML = `
+        <table>
+        <tr>
+        <th>ID</th>
+        <th>Ticket ID</th>
+        <th>Agent ID</th>
+        <th>Assigned Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+        </tr>
+        <tr>
+        <td>${a.id}</td>
+        <td>${a.ticketid}</td>
+        <td>${a.agentid}</td>
+        <td>${a.assigneddate}</td>
+        <td>${a.assignmentstatus}</td>
+        <td>
+            <button style="margin:2px;padding:6px 12px;" onclick="editAssignmentRow(${JSON.stringify(a).replace(/"/g, '&quot;')})">Edit</button>
+            <button class="deleteBtn" style="margin:2px;padding:6px 12px;" onclick="deleteAssignmentRow(${a.id})">Delete</button>
+        </td>
+        </tr>
+        </table>
+        `;
+    } else {
+        alert("Assignment Not Found");
+    }
+}
+
+function editAssignmentRow(a) {
+    showSection("updateSection");
+    document.getElementById("updateId").value = a.id;
+    document.getElementById("updateTicketid").value = a.ticketid;
+    document.getElementById("updateAgentid").value = a.agentid;
+    document.getElementById("updateDate").value = a.assigneddate;
+    document.getElementById("updateStatus").value = a.assignmentstatus;
+    document.getElementById("updateSection").scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteAssignmentRow(id) {
+    if (confirm("Are you sure you want to delete Assignment with ID " + id + "?")) {
+        const res = await fetch(BASE_URL + "/ass/" + id, {
+            method: "DELETE",
+            headers: getHeaders()
+        });
+        if (res.ok) {
+            alert("Assignment Deleted Successfully");
+            showSection("viewSection");
+            getAll();
+        } else {
+            alert(await res.text());
+        }
+    }
+}
+
+// ===================== UPDATE =====================
+
+async function updateAssignment(){
+
+    let id = document.getElementById("updateId").value;
+
+    let data = {
+        ticketid: Number(document.getElementById("updateTicketid").value),
+        agentid: Number(document.getElementById("updateAgentid").value),
+        assigneddate: document.getElementById("updateDate").value,
+        assignmentstatus: document.getElementById("updateStatus").value
+    };
+
+    let res = await fetch(BASE_URL + "/ass/" + id, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Assignment Updated Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Update Failed: " + await res.text());
+    }
+}
+
+// ===================== PATCH =====================
+
+async function patchAssignment(){
+
+    let id = document.getElementById("patchId").value;
+    let data = {};
+
+    if(document.getElementById("patchTicketid").value !== "")
+        data.ticketid = Number(document.getElementById("patchTicketid").value);
+
+    if(document.getElementById("patchAgentid").value !== "")
+        data.agentid = Number(document.getElementById("patchAgentid").value);
+
+    if(document.getElementById("patchDate").value !== "")
+        data.assigneddate = document.getElementById("patchDate").value;
+
+    if(document.getElementById("patchStatus").value !== "")
+        data.assignmentstatus = document.getElementById("patchStatus").value;
+
+    let res = await fetch(BASE_URL + "/ass/" + id, {
+        method: "PATCH",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Assignment Patched Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Patch Failed: " + await res.text());
+    }
+}
+
+// ===================== DELETE =====================
+
+async function deleteAssignment(){
+
+    let id = document.getElementById("deleteId").value;
+
+    let res = await fetch(BASE_URL + "/ass/" + id, {
+        method: "DELETE",
+        headers: getHeaders()
+    });
+
+    if(res.ok){
+        alert("Assignment Deleted Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Delete Failed: " + await res.text());
+    }
+}
+
+</script>
+
+</body>
+
+</html>

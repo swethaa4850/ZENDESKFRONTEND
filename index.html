@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Zendesk Ticket Hub</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f5f7ff;
+}
+
+
+.header{
+    width:95%;
+    margin:20px auto;
+    background:white;
+    border-radius:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 40px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+}
+
+.logo img{
+    width:70px;
+    margin-right:15px;
+}
+
+.logo h1{
+    font-size:36px;
+    color:#222;
+}
+
+.logo span{
+    color:#6b46c1;
+    font-size:22px;
+    display:block;
+}
+
+.nav{
+    display:flex;
+    align-items:center;
+}
+
+.nav a{
+    text-decoration:none;
+    color:#222;
+    margin:0 18px;
+    font-size:20px;
+    transition:.3s;
+}
+
+.nav a:hover{
+    color:#6b46c1;
+}
+
+.login-btn{
+
+    padding:12px 28px;
+    border:2px solid #6b46c1;
+    border-radius:10px;
+    color:#6b46c1!important;
+    margin-left:20px;
+
+}
+
+.register-btn{
+
+    padding:12px 28px;
+    background:#6b46c1;
+    color:white!important;
+    border-radius:10px;
+    margin-left:15px;
+
+}
+
+
+
+.hero{
+
+    width:95%;
+    margin:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:60px 0;
+
+}
+
+.left{
+
+    width:45%;
+
+}
+
+.tag{
+
+    display:inline-block;
+    background:#ece5ff;
+    color:#6b46c1;
+    padding:10px 20px;
+    border-radius:20px;
+    font-size:18px;
+    margin-bottom:25px;
+
+}
+
+.left h2{
+
+    font-size:68px;
+    color:#18204b;
+    line-height:1.15;
+
+}
+
+.left h2 span{
+
+    color:#6b46c1;
+
+}
+
+.left p{
+
+    margin-top:25px;
+    font-size:22px;
+    color:gray;
+    line-height:1.7;
+
+}
+
+.buttons{
+
+    margin-top:35px;
+
+}
+
+.buttons button{
+
+    width:180px;
+    height:55px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:22px;
+    margin-right:20px;
+
+}
+
+.login{
+
+    background:#6b46c1;
+    color:white;
+
+}
+
+.register{
+
+    background:white;
+    border:2px solid #6b46c1;
+    color:#6b46c1;
+
+}
+
+.right{
+
+    width:50%;
+    position:relative;
+    text-align:center;
+
+}
+
+.right::before{
+
+    content:"";
+    width:580px;
+    height:580px;
+    background:#ece8ff;
+    border-radius:50%;
+    position:absolute;
+    right:30px;
+    top:20px;
+    z-index:-1;
+
+}
+
+.right img{
+
+    width:80%;
+    max-width:650px;
+
+}
+
+
+
+.features{
+
+    width:95%;
+    margin:20px auto 50px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+
+}
+
+.card{
+
+    background:white;
+    border-radius:18px;
+    padding:30px;
+    box-shadow:0 5px 18px rgba(0,0,0,.08);
+    transition:.3s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.icon{
+
+    width:75px;
+    height:75px;
+    background:#ece5ff;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:35px;
+    margin-bottom:20px;
+
+}
+
+.card h3{
+
+    font-size:26px;
+    margin-bottom:15px;
+    color:#222;
+
+}
+
+.card p{
+
+    color:gray;
+    font-size:18px;
+    line-height:1.7;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<div class="header">
+
+<div class="logo">
+
+<img src="https://cdn-icons-png.flaticon.com/512/9068/9068676.png">
+
+<div>
+
+<h1>Zendesk</h1>
+
+<span>Ticket Hub</span>
+
+</div>
+
+</div>
+
+<div class="nav">
+
+<a href="login.html" class="login-btn">🔐 Login</a>
+
+<a href="register.html" class="register-btn">📝 Register</a>
+
+</div>
+
+</div>
+
+<!-- HERO -->
+
+<div class="hero">
+
+<div class="left">
+
+<div class="tag">
+Smart Support, Better Experience
+</div>
+
+<h2>
+
+Manage Tickets.<br>
+
+Support Customers.<br>
+
+<span>Grow Together.</span>
+
+</h2>
+
+<p>
+
+Zendesk Ticket Hub helps teams streamline support,
+resolve issues faster and provide exceptional customer
+service using Spring Boot, JWT Authentication,
+MySQL and Spring Security.
+
+</p>
+
+<div class="buttons">
+
+<a href="login.html">
+<button class="login">🔐 Login</button>
+</a>
+
+<a href="register.html">
+<button class="register">📝 Register</button>
+</a>
+
+</div>
+
+</div>
+
+<div class="right">
+
+<img src="https://cdn-icons-png.flaticon.com/512/3050/3050525.png">
+
+</div>
+
+</div>
+
+<!-- FEATURES -->
+
+<div class="features">
+
+<div class="card">
+
+<div class="icon">🎫</div>
+
+<h3>Ticket Management</h3>
+
+<p>
+
+Create, assign and track customer support tickets
+efficiently from one dashboard.
+
+</p>
+
+</div>
+
+<div class="card">
+
+<div class="icon">👥</div>
+
+<h3>Team Collaboration</h3>
+
+<p>
+
+Agents and administrators collaborate together
+to resolve issues quickly.
+
+</p>
+
+</div>
+
+<div class="card">
+
+<div class="icon">📊</div>
+
+<h3>Smart Analytics</h3>
+
+<p>
+
+Track ticket progress, performance and response
+times using insightful reports.
+
+</p>
+
+</div>
+
+<div class="card">
+
+<div class="icon">🛡</div>
+
+<h3>Secure & Reliable</h3>
+
+<p>
+
+Protected with Spring Security and JWT Authentication
+for secure access.
+
+</p>
+
+</div>
+
+</div>
+
+</body>
+</html>

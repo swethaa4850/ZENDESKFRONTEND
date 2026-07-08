@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Zendesk | Escalation Record Management</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#F4F5FB;
+padding:30px;
+}
+
+.header{
+background:#5B4BAA;
+color:white;
+padding:20px;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.header button{
+background:white;
+color:#5B4BAA;
+padding:10px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.container{
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+.menu{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:25px;
+}
+
+.menu button{
+background:#5B4BAA;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.menu button:hover{
+background:#47358E;
+}
+
+.section{
+display:none;
+margin-top:20px;
+}
+
+.section h2{
+margin-bottom:15px;
+color:#5B4BAA;
+}
+
+input,select{
+width:250px;
+padding:12px;
+margin:8px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button.action{
+background:#5B4BAA;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+}
+
+button.action:hover{
+background:#47358E;
+}
+
+.deleteBtn{
+background:#E53935;
+}
+
+.deleteBtn:hover{
+background:#B71C1C;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th{
+background:#5B4BAA;
+color:white;
+padding:12px;
+}
+
+th,td{
+padding:12px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+#result{
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>⚠️ Escalation Record Management</h1>
+
+<button onclick="goDashboard()">
+Back Dashboard
+</button>
+
+</div>
+
+<div class="container">
+
+<div class="menu">
+
+<button onclick="showSection('addSection')">
+➕ Add Record
+</button>
+
+<button onclick="showSection('searchSection')">
+🔍 Search Record
+</button>
+
+<button onclick="showSection('viewSection');getAll();">
+📋 View All
+</button>
+
+<button onclick="showSection('updateSection')">
+✏ Update Record
+</button>
+
+<button onclick="showSection('patchSection')">
+📝 Patch Record
+</button>
+
+<button onclick="showSection('deleteSection')">
+🗑 Delete Record
+</button>
+
+</div>
+
+<!-- ADD -->
+
+<div id="addSection" class="section">
+
+<h2>Add Escalation Record</h2>
+
+<input type="number" id="id" placeholder="Record ID">
+
+<input type="number" id="ticketid" placeholder="Ticket ID">
+
+<input type="number" id="userid" placeholder="User ID">
+
+<input type="text" id="escalationlevel" placeholder="Escalation Level">
+
+<input type="text" id="reason" placeholder="Reason">
+
+<input type="text" id="escalationdate" placeholder="Escalation Date">
+
+<br>
+
+<button class="action" onclick="addRecord()">
+Save Record
+</button>
+
+</div>
+
+<!-- SEARCH -->
+
+<div id="searchSection" class="section">
+
+<h2>Search Escalation Record</h2>
+
+<input type="number" id="searchId" placeholder="Record ID">
+
+<button class="action" onclick="getById()">
+Search
+</button>
+
+<div id="searchResult"></div>
+
+</div>
+
+<!-- VIEW -->
+
+<div id="viewSection" class="section">
+
+<h2>All Escalation Records</h2>
+
+<div id="viewResult"></div>
+
+</div>
+
+<!-- UPDATE -->
+
+<div id="updateSection" class="section">
+
+<h2>Update Escalation Record</h2>
+
+<input type="number" id="updateId" placeholder="Record ID">
+
+<input type="number" id="updateTicketid" placeholder="Ticket ID">
+
+<input type="number" id="updateUserid" placeholder="User ID">
+
+<input type="text" id="updateLevel" placeholder="Escalation Level">
+
+<input type="text" id="updateReason" placeholder="Reason">
+
+<input type="text" id="updateDate" placeholder="Escalation Date">
+
+<br>
+
+<button class="action" onclick="updateRecord()">
+Update Record
+</button>
+
+</div>
+
+<!-- PATCH -->
+
+<div id="patchSection" class="section">
+
+<h2>Patch Escalation Record</h2>
+
+<input type="number" id="patchId" placeholder="Record ID">
+
+<input type="number" id="patchTicketid" placeholder="New Ticket ID">
+
+<input type="number" id="patchUserid" placeholder="New User ID">
+
+<input type="text" id="patchLevel" placeholder="New Escalation Level">
+
+<input type="text" id="patchReason" placeholder="New Reason">
+
+<input type="text" id="patchDate" placeholder="New Date">
+
+<br>
+
+<button class="action" onclick="patchRecord()">
+Patch Record
+</button>
+
+</div>
+
+<!-- DELETE -->
+
+<div id="deleteSection" class="section">
+
+<h2>Delete Escalation Record</h2>
+
+<input type="number" id="deleteId" placeholder="Record ID">
+
+<button class="action deleteBtn" onclick="deleteRecord()">
+Delete Record
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const BASE_URL = "https://zendeskbackend2-0.onrender.com/escalation";
+
+function goDashboard(){
+    window.location.href = "dashboard.html";
+}
+
+function showSection(id){
+    let sections = document.querySelectorAll(".section");
+    sections.forEach(function(sec){
+        sec.style.display = "none";
+    });
+    document.getElementById(id).style.display = "block";
+}
+
+window.onload = function(){
+    showSection("addSection");
+};
+
+function getHeaders(){
+    const headers = {
+        "Content-Type": "application/json"
+    };
+    const tokenVal = localStorage.getItem("token");
+    if (tokenVal && tokenVal !== "null" && tokenVal !== "undefined") {
+        headers["Authorization"] = "Bearer " + tokenVal;
+    }
+    return headers;
+}
+
+// ===================== ADD =====================
+
+async function addRecord(){
+
+    let data = {
+        id: Number(document.getElementById("id").value),
+        ticketid: Number(document.getElementById("ticketid").value),
+        userid: Number(document.getElementById("userid").value),
+        escalationlevel: document.getElementById("escalationlevel").value,
+        reason: document.getElementById("reason").value,
+        escalationdate: document.getElementById("escalationdate").value
+    };
+
+    let res = await fetch(BASE_URL + "/postData", {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Escalation Record Added Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Add Failed: " + await res.text());
+    }
+}
+
+// ===================== GET ALL =====================
+
+async function getAll(){
+
+    let res = await fetch(BASE_URL + "/esc", {
+        method: "GET",
+        headers: getHeaders()
+    });
+
+    let data = await res.json();
+
+    let html = `
+    <table>
+    <tr>
+    <th>ID</th>
+    <th>Ticket ID</th>
+    <th>User ID</th>
+    <th>Escalation Level</th>
+    <th>Reason</th>
+    <th>Escalation Date</th>
+    <th>Actions</th>
+    </tr>
+    `;
+
+    data.forEach(e => {
+        html += `
+        <tr>
+        <td>${e.id}</td>
+        <td>${e.ticketid}</td>
+        <td>${e.userid}</td>
+        <td>${e.escalationlevel}</td>
+        <td>${e.reason}</td>
+        <td>${e.escalationdate}</td>
+        <td>
+            <button style="margin:2px;padding:6px 12px;" onclick="editEscalationRow(${JSON.stringify(e).replace(/"/g, '&quot;')})">Edit</button>
+            <button class="deleteBtn" style="margin:2px;padding:6px 12px;" onclick="deleteEscalationRow(${e.id})">Delete</button>
+        </td>
+        </tr>
+        `;
+    });
+
+    html += "</table>";
+    document.getElementById("viewResult").innerHTML = html;
+}
+
+// ===================== GET BY ID =====================
+
+async function getById(){
+
+    let id = document.getElementById("searchId").value;
+
+    let res = await fetch(BASE_URL + "/esc/" + id, {
+        method: "GET",
+        headers: getHeaders()
+    });
+
+    if(res.ok){
+        let e = await res.json();
+        document.getElementById("searchResult").innerHTML = `
+        <table>
+        <tr>
+        <th>ID</th>
+        <th>Ticket ID</th>
+        <th>User ID</th>
+        <th>Escalation Level</th>
+        <th>Reason</th>
+        <th>Escalation Date</th>
+        <th>Actions</th>
+        </tr>
+        <tr>
+        <td>${e.id}</td>
+        <td>${e.ticketid}</td>
+        <td>${e.userid}</td>
+        <td>${e.escalationlevel}</td>
+        <td>${e.reason}</td>
+        <td>${e.escalationdate}</td>
+        <td>
+            <button style="margin:2px;padding:6px 12px;" onclick="editEscalationRow(${JSON.stringify(e).replace(/"/g, '&quot;')})">Edit</button>
+            <button class="deleteBtn" style="margin:2px;padding:6px 12px;" onclick="deleteEscalationRow(${e.id})">Delete</button>
+        </td>
+        </tr>
+        </table>
+        `;
+    } else {
+        alert("Record Not Found");
+    }
+}
+
+function editEscalationRow(e) {
+    showSection("updateSection");
+    document.getElementById("updateId").value = e.id;
+    document.getElementById("updateTicketid").value = e.ticketid;
+    document.getElementById("updateUserid").value = e.userid;
+    document.getElementById("updateLevel").value = e.escalationlevel;
+    document.getElementById("updateReason").value = e.reason;
+    document.getElementById("updateDate").value = e.escalationdate;
+    document.getElementById("updateSection").scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteEscalationRow(id) {
+    if (confirm("Are you sure you want to delete Escalation Record with ID " + id + "?")) {
+        const res = await fetch(BASE_URL + "/esc/" + id, {
+            method: "DELETE",
+            headers: getHeaders()
+        });
+        if (res.ok) {
+            alert("Record Deleted Successfully");
+            showSection("viewSection");
+            getAll();
+        } else {
+            alert(await res.text());
+        }
+    }
+}
+
+// ===================== UPDATE =====================
+
+async function updateRecord(){
+
+    let id = document.getElementById("updateId").value;
+
+    let data = {
+        id: Number(id),
+        ticketid: Number(document.getElementById("updateTicketid").value),
+        userid: Number(document.getElementById("updateUserid").value),
+        escalationlevel: document.getElementById("updateLevel").value,
+        reason: document.getElementById("updateReason").value,
+        escalationdate: document.getElementById("updateDate").value
+    };
+
+    let res = await fetch(BASE_URL + "/esc/" + id, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Record Updated Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Update Failed: " + await res.text());
+    }
+}
+
+// ===================== PATCH =====================
+
+async function patchRecord(){
+
+    let id = document.getElementById("patchId").value;
+    let data = {};
+
+    if(document.getElementById("patchTicketid").value !== "")
+        data.ticketid = Number(document.getElementById("patchTicketid").value);
+
+    if(document.getElementById("patchUserid").value !== "")
+        data.userid = Number(document.getElementById("patchUserid").value);
+
+    if(document.getElementById("patchLevel").value !== "")
+        data.escalationlevel = document.getElementById("patchLevel").value;
+
+    if(document.getElementById("patchReason").value !== "")
+        data.reason = document.getElementById("patchReason").value;
+
+    if(document.getElementById("patchDate").value !== "")
+        data.escalationdate = document.getElementById("patchDate").value;
+
+    let res = await fetch(BASE_URL + "/esc/" + id, {
+        method: "PATCH",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Record Patched Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Patch Failed: " + await res.text());
+    }
+}
+
+// ===================== DELETE =====================
+
+async function deleteRecord(){
+
+    let id = document.getElementById("deleteId").value;
+
+    let res = await fetch(BASE_URL + "/esc/" + id, {
+        method: "DELETE",
+        headers: getHeaders()
+    });
+
+    if(res.ok){
+        alert("Record Deleted Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Delete Failed: " + await res.text());
+    }
+}
+
+</script>
+
+</body>
+
+</html>

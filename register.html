@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration</title>
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f5f5f5;
+}
+
+.container{
+    width:100%;
+    height:100vh;
+    display:flex;
+}
+
+.left{
+    width:60%;
+    background:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.register-box{
+    width:430px;
+}
+
+.logo{
+    font-size:35px;
+    color:#6b46c1;
+    font-weight:bold;
+    margin-bottom:40px;
+}
+
+h1{
+    font-size:45px;
+    margin-bottom:10px;
+}
+
+.text{
+    color:gray;
+    margin-bottom:30px;
+    font-size:18px;
+}
+
+input{
+    width:100%;
+    height:45px;
+    margin-bottom:18px;
+    padding-left:15px;
+    font-size:17px;
+    border:1px solid lightgray;
+    border-radius:8px;
+}
+
+button{
+    width:100%;
+    height:50px;
+    background:#6b46c1;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#5730b3;
+}
+
+.links{
+    margin-top:20px;
+    text-align:center;
+}
+
+.links a{
+    text-decoration:none;
+    color:#6b46c1;
+    font-weight:bold;
+}
+
+
+.right{
+    width:40%;
+    background:linear-gradient(135deg,#5d3fd3,#9d7cff);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    color:white;
+}
+
+.right img{
+    width:70%;
+    max-width:420px;
+}
+
+.right h2{
+    margin-top:25px;
+    font-size:34px;
+}
+
+.right p{
+    margin-top:10px;
+    width:80%;
+    text-align:center;
+    font-size:18px;
+    line-height:1.6;
+}
+select{
+    width:100%;
+    height:45px;
+    margin-bottom:18px;
+    padding-left:15px;
+    font-size:17px;
+    border:1px solid lightgray;
+    border-radius:8px;
+    background:white;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="left">
+
+<div class="register-box">
+
+<div class="logo">🟪 Zendesk Ticket Hub</div>
+
+<h1>Create Account</h1>
+
+<p class="text">Create your Zendesk account to manage support tickets.</p>
+
+<form>
+
+
+<input type="text" placeholder="Enter Full Name">
+
+<input type="email" placeholder="Enter Email">
+
+<input type="password" placeholder="Enter Password">
+<label>Select Role</label>
+
+<select id="role">
+    <option value="">-- Select Role --</option>
+    <option value="ADMIN">ADMIN</option>
+    <option value="AGENT">AGENT</option>
+    <option value="CUSTOMER">CUSTOMER</option>
+</select>
+
+<label>Account Status</label>
+
+<select id="active">
+    <option value="">-- Select Status --</option>
+    <option value="true">Active</option>
+    <option value="false">Inactive</option>
+</select>
+
+<button>Register</button>
+
+</form>
+
+<div class="links">
+
+<p>
+Already have an account?
+<a href="login.html">Login</a>
+</p>
+
+<br>
+
+<a href="index.html">⬅ Back to Home</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="right">
+
+<img src="https://cdn-icons-png.flaticon.com/512/3050/3050525.png">
+
+<h2>Secure Registration</h2>
+
+<p>
+Create your account securely and start managing customer support tickets with Zendesk Ticket Hub.
+</p>
+
+</div>
+
+</div>
+<script>
+
+const form = document.querySelector("form");
+
+form.addEventListener("submit", async function(event){
+
+    event.preventDefault();
+const inputs = document.querySelectorAll("input");
+
+const registerData = {
+
+    fullName: inputs[0].value.trim(),
+
+    email: inputs[1].value.trim(),
+
+    password: inputs[2].value,
+
+    role: document.getElementById("role").value,
+
+    active: document.getElementById("active").value === "true"
+};
+    try{
+
+        const response = await fetch("https://zendeskbackend2-0.onrender.com/auth/register",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify(registerData)
+
+        });
+
+        const result = await response.json();
+
+        if(response.ok){
+
+            alert("Registration Successful!");
+
+            form.reset();
+
+            window.location.href="login.html";
+
+        }else{
+
+            alert(result.message);
+
+        }
+
+    }catch(error){
+
+        console.log(error);
+
+        alert("Unable to connect to Spring Boot Server.");
+    }
+});
+
+</script>

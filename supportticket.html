@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Zendesk | Support Ticket Management</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#F4F5FB;
+padding:30px;
+}
+
+.header{
+background:#5B4BAA;
+color:white;
+padding:20px;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.header button{
+background:white;
+color:#5B4BAA;
+padding:10px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.container{
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+.menu{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:25px;
+}
+
+.menu button{
+background:#5B4BAA;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.menu button:hover{
+background:#47358E;
+}
+
+.section{
+display:none;
+margin-top:20px;
+}
+
+.section h2{
+margin-bottom:15px;
+color:#5B4BAA;
+}
+
+input,select,textarea{
+width:250px;
+padding:12px;
+margin:8px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+textarea{
+height:90px;
+resize:none;
+}
+
+button.action{
+background:#5B4BAA;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+}
+
+button.action:hover{
+background:#47358E;
+}
+
+.deleteBtn{
+background:#E53935;
+}
+
+.deleteBtn:hover{
+background:#B71C1C;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th{
+background:#5B4BAA;
+color:white;
+padding:12px;
+}
+
+th,td{
+padding:12px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+#result{
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>🎫 Support Ticket Management</h1>
+
+<button onclick="goDashboard()">
+Back Dashboard
+</button>
+
+</div>
+
+<div class="container">
+
+<div class="menu">
+
+<button onclick="showSection('addSection')">
+➕ Add Ticket
+</button>
+
+<button onclick="showSection('searchSection')">
+🔍 Search Ticket
+</button>
+
+<button onclick="showSection('viewSection');getAll();">
+📋 View All
+</button>
+
+<button onclick="showSection('updateSection')">
+✏ Update Ticket
+</button>
+
+<button onclick="showSection('patchSection')">
+📝 Patch Ticket
+</button>
+
+<button onclick="showSection('deleteSection')">
+🗑 Delete Ticket
+</button>
+
+</div>
+
+<!-- ADD -->
+
+<div id="addSection" class="section">
+
+<h2>Add Support Ticket</h2>
+
+<input type="number" id="id" placeholder="Ticket ID">
+
+<input type="number" id="userid" placeholder="User ID">
+
+<input type="text" id="title" placeholder="Ticket Title">
+
+<textarea id="description" placeholder="Ticket Description"></textarea>
+
+<input type="text" id="category" placeholder="Category">
+
+<select id="priority">
+<option value="LOW">LOW</option>
+<option value="MEDIUM">MEDIUM</option>
+<option value="HIGH">HIGH</option>
+<option value="CRITICAL">CRITICAL</option>
+</select>
+
+<select id="status">
+<option value="OPEN">OPEN</option>
+<option value="IN_PROGRESS">IN_PROGRESS</option>
+<option value="RESOLVED">RESOLVED</option>
+<option value="CLOSED">CLOSED</option>
+</select>
+
+<br>
+
+<button class="action" onclick="addTicket()">
+Save Ticket
+</button>
+
+</div>
+
+<!-- SEARCH -->
+
+<div id="searchSection" class="section">
+
+<h2>Search Ticket</h2>
+
+<input type="number" id="searchId" placeholder="Ticket ID">
+
+<button class="action" onclick="getById()">
+Search
+</button>
+
+<div id="searchResult"></div>
+
+</div>
+
+<!-- VIEW -->
+
+<div id="viewSection" class="section">
+
+<h2>All Support Tickets</h2>
+
+<div id="viewResult"></div>
+
+</div>
+
+<!-- UPDATE -->
+
+<div id="updateSection" class="section">
+
+<h2>Update Ticket</h2>
+
+<input type="number" id="updateId" placeholder="Ticket ID">
+
+<input type="number" id="updateUserid" placeholder="User ID">
+
+<input type="text" id="updateTitle" placeholder="Title">
+
+<textarea id="updateDescription" placeholder="Description"></textarea>
+
+<input type="text" id="updateCategory" placeholder="Category">
+
+<select id="updatePriority">
+<option value="LOW">LOW</option>
+<option value="MEDIUM">MEDIUM</option>
+<option value="HIGH">HIGH</option>
+<option value="CRITICAL">CRITICAL</option>
+</select>
+
+<select id="updateStatus">
+<option value="OPEN">OPEN</option>
+<option value="IN_PROGRESS">IN_PROGRESS</option>
+<option value="RESOLVED">RESOLVED</option>
+<option value="CLOSED">CLOSED</option>
+</select>
+
+<br>
+
+<button class="action" onclick="updateTicket()">
+Update Ticket
+</button>
+
+</div>
+
+<!-- PATCH -->
+
+<div id="patchSection" class="section">
+
+<h2>Patch Ticket</h2>
+
+<input type="number" id="patchId" placeholder="Ticket ID">
+
+<input type="text" id="patchTitle" placeholder="New Title">
+
+<input type="text" id="patchCategory" placeholder="New Category">
+
+<select id="patchPriority">
+<option value="">Select Priority</option>
+<option value="LOW">LOW</option>
+<option value="MEDIUM">MEDIUM</option>
+<option value="HIGH">HIGH</option>
+<option value="CRITICAL">CRITICAL</option>
+</select>
+
+<select id="patchStatus">
+<option value="">Select Status</option>
+<option value="OPEN">OPEN</option>
+<option value="IN_PROGRESS">IN_PROGRESS</option>
+<option value="RESOLVED">RESOLVED</option>
+<option value="CLOSED">CLOSED</option>
+</select>
+
+<br>
+
+<button class="action" onclick="patchTicket()">
+Patch Ticket
+</button>
+
+</div>
+
+<!-- DELETE -->
+
+<div id="deleteSection" class="section">
+
+<h2>Delete Ticket</h2>
+
+<input type="number" id="deleteId" placeholder="Ticket ID">
+
+<button class="action deleteBtn" onclick="deleteTicket()">
+Delete Ticket
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const BASE_URL = "https://zendeskbackend2-0.onrender.com/support";
+
+function goDashboard(){
+    window.location.href = "dashboard.html";
+}
+
+function showSection(id){
+    let sections = document.querySelectorAll(".section");
+    sections.forEach(function(sec){
+        sec.style.display = "none";
+    });
+    document.getElementById(id).style.display = "block";
+}
+
+window.onload = function(){
+    showSection("addSection");
+};
+
+function getHeaders(){
+    const headers = {
+        "Content-Type": "application/json"
+    };
+    const tokenVal = localStorage.getItem("token");
+    if (tokenVal && tokenVal !== "null" && tokenVal !== "undefined") {
+        headers["Authorization"] = "Bearer " + tokenVal;
+    }
+    return headers;
+}
+
+
+async function addTicket(){
+
+    let data = {
+        id: Number(document.getElementById("id").value),
+        userid: Number(document.getElementById("userid").value),
+        title: document.getElementById("title").value,
+        description: document.getElementById("description").value,
+        category: document.getElementById("category").value,
+        priority: document.getElementById("priority").value,
+        status: document.getElementById("status").value
+    };
+
+    let res = await fetch(BASE_URL + "/poster", {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Ticket Added Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Add Failed: " + await res.text());
+    }
+}
+
+
+
+async function getAll(){
+
+    let res = await fetch(BASE_URL + "/sup", {
+        method: "GET",
+        headers: getHeaders()
+    });
+
+    let data = await res.json();
+
+    let html = `
+    <table>
+    <tr>
+    <th>ID</th>
+    <th>User ID</th>
+    <th>Title</th>
+    <th>Description</th>
+    <th>Category</th>
+    <th>Priority</th>
+    <th>Status</th>
+    <th>Actions</th>
+    </tr>
+    `;
+
+    data.forEach(t => {
+        html += `
+        <tr>
+        <td>${t.id}</td>
+        <td>${t.userid}</td>
+        <td>${t.title}</td>
+        <td>${t.description}</td>
+        <td>${t.category}</td>
+        <td>${t.priority}</td>
+        <td>${t.status}</td>
+        <td>
+            <button style="margin:2px;padding:6px 12px;" onclick="editTicketRow(${JSON.stringify(t).replace(/"/g, '&quot;')})">Edit</button>
+            <button class="deleteBtn" style="margin:2px;padding:6px 12px;" onclick="deleteTicketRow(${t.id})">Delete</button>
+        </td>
+        </tr>
+        `;
+    });
+
+    html += "</table>";
+    document.getElementById("viewResult").innerHTML = html;
+}
+
+
+
+async function getById(){
+
+    let id = document.getElementById("searchId").value;
+
+    let res = await fetch(BASE_URL + "/sup/" + id, {
+        method: "GET",
+        headers: getHeaders()
+    });
+
+    if(res.ok){
+        let t = await res.json();
+        document.getElementById("searchResult").innerHTML = `
+        <table>
+        <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th>Actions</th>
+        </tr>
+        <tr>
+        <td>${t.id}</td>
+        <td>${t.userid}</td>
+        <td>${t.title}</td>
+        <td>${t.description}</td>
+        <td>${t.category}</td>
+        <td>${t.priority}</td>
+        <td>${t.status}</td>
+        <td>
+            <button style="margin:2px;padding:6px 12px;" onclick="editTicketRow(${JSON.stringify(t).replace(/"/g, '&quot;')})">Edit</button>
+            <button class="deleteBtn" style="margin:2px;padding:6px 12px;" onclick="deleteTicketRow(${t.id})">Delete</button>
+        </td>
+        </tr>
+        </table>
+        `;
+    } else {
+        alert("Ticket Not Found");
+    }
+}
+
+function editTicketRow(t) {
+    showSection("updateSection");
+    document.getElementById("updateId").value = t.id;
+    document.getElementById("updateUserid").value = t.userid;
+    document.getElementById("updateTitle").value = t.title;
+    document.getElementById("updateDescription").value = t.description;
+    document.getElementById("updateCategory").value = t.category;
+    document.getElementById("updatePriority").value = t.priority;
+    document.getElementById("updateStatus").value = t.status;
+    document.getElementById("updateSection").scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteTicketRow(id) {
+    if (confirm("Are you sure you want to delete Ticket with ID " + id + "?")) {
+        const res = await fetch(BASE_URL + "/sup/" + id, {
+            method: "DELETE",
+            headers: getHeaders()
+        });
+        if (res.ok) {
+            alert("Ticket Deleted Successfully");
+            showSection("viewSection");
+            getAll();
+        } else {
+            alert(await res.text());
+        }
+    }
+}
+
+
+
+async function updateTicket(){
+
+    let id = document.getElementById("updateId").value;
+
+    let data = {
+        userid: Number(document.getElementById("updateUserid").value),
+        title: document.getElementById("updateTitle").value,
+        description: document.getElementById("updateDescription").value,
+        category: document.getElementById("updateCategory").value,
+        priority: document.getElementById("updatePriority").value,
+        status: document.getElementById("updateStatus").value
+    };
+
+    let res = await fetch(BASE_URL + "/sup/" + id, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Ticket Updated Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Update Failed: " + await res.text());
+    }
+}
+
+
+
+async function patchTicket(){
+
+    let id = document.getElementById("patchId").value;
+    let data = {};
+
+    if(document.getElementById("patchTitle").value !== "")
+        data.title = document.getElementById("patchTitle").value;
+
+    if(document.getElementById("patchCategory").value !== "")
+        data.category = document.getElementById("patchCategory").value;
+
+    if(document.getElementById("patchPriority").value !== "")
+        data.priority = document.getElementById("patchPriority").value;
+
+    if(document.getElementById("patchStatus").value !== "")
+        data.status = document.getElementById("patchStatus").value;
+
+    let res = await fetch(BASE_URL + "/sup/" + id, {
+        method: "PATCH",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("Ticket Patched Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Patch Failed: " + await res.text());
+    }
+}
+
+
+async function deleteTicket(){
+
+    let id = document.getElementById("deleteId").value;
+
+    let res = await fetch(BASE_URL + "/sup/" + id, {
+        method: "DELETE",
+        headers: getHeaders()
+    });
+
+    if(res.ok){
+        alert("Ticket Deleted Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        alert("Delete Failed: " + await res.text());
+    }
+}
+
+</script>
+
+</body>
+
+</html>

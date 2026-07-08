@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Zendesk | App User Management</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#F4F5FB;
+padding:30px;
+}
+
+.header{
+background:#1565C0;
+color:white;
+padding:20px;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.header button{
+background:white;
+color:#1565C0;
+padding:10px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.container{
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+.menu{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:25px;
+}
+
+.menu button{
+background:#1565C0;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.menu button:hover{
+background:#0D47A1;
+}
+
+.section{
+display:none;
+margin-top:20px;
+}
+
+.section h2{
+margin-bottom:15px;
+color:#1565C0;
+}
+
+input,select{
+width:250px;
+padding:12px;
+margin:8px;
+border:1px solid #ccc;
+border-radius:8px;
+outline:none;
+}
+
+input:focus,
+select:focus{
+border:1px solid #1565C0;
+}
+
+button.action{
+background:#1565C0;
+color:white;
+padding:12px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+}
+
+button.action:hover{
+background:#0D47A1;
+}
+
+.deleteBtn{
+background:#D32F2F;
+}
+
+.deleteBtn:hover{
+background:#B71C1C;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th{
+background:#1565C0;
+color:white;
+padding:12px;
+}
+
+td{
+padding:12px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+#result{
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>👤 App User Management</h1>
+
+<button onclick="goDashboard()">
+Back Dashboard
+</button>
+
+</div>
+
+<div class="container">
+
+<div class="menu">
+
+<button onclick="showSection('addSection')">
+➕ Add User
+</button>
+
+<button onclick="showSection('searchSection')">
+🔍 Search User
+</button>
+
+<button onclick="showSection('viewSection');getAll();">
+📋 View All
+</button>
+
+<button onclick="showSection('updateSection')">
+✏ Update User
+</button>
+
+<button onclick="showSection('deleteSection')">
+🗑 Delete User
+</button>
+
+</div>
+
+<!-- ADD -->
+
+<div id="addSection" class="section">
+
+<h2>Add User</h2>
+
+<input type="text" id="fullName" placeholder="Full Name">
+
+<input type="email" id="email" placeholder="Email">
+
+<input type="password" id="password" placeholder="Password">
+
+<select id="role">
+<option value="ADMIN">ADMIN</option>
+<option value="AGENT">AGENT</option>
+<option value="CUSTOMER">CUSTOMER</option>
+</select>
+
+<select id="active">
+<option value="true">Active</option>
+<option value="false">Inactive</option>
+</select>
+
+<br>
+
+<button class="action" onclick="addUser()">
+Save User
+</button>
+
+</div>
+
+<!-- SEARCH -->
+
+<div id="searchSection" class="section">
+
+<h2>Search User</h2>
+
+<input type="number" id="searchId" placeholder="Enter User ID">
+
+<button class="action" onclick="getById()">
+Search
+</button>
+
+<div id="searchResult"></div>
+
+</div>
+
+<!-- VIEW -->
+
+<div id="viewSection" class="section">
+
+<h2>All Users</h2>
+
+<div id="viewResult"></div>
+
+</div>
+
+<!-- UPDATE -->
+
+<div id="updateSection" class="section">
+
+<h2>Update User</h2>
+
+<input type="number" id="updateId" placeholder="User ID">
+
+<input type="text" id="updateFullName" placeholder="Full Name">
+
+<input type="email" id="updateEmail" placeholder="Email">
+
+<input type="password" id="updatePassword" placeholder="Password">
+
+<select id="updateRole">
+<option value="ADMIN">ADMIN</option>
+<option value="AGENT">AGENT</option>
+<option value="CUSTOMER">CUSTOMER</option>
+</select>
+
+<select id="updateActive">
+<option value="true">Active</option>
+<option value="false">Inactive</option>
+</select>
+
+<br>
+
+<button class="action" onclick="updateUser()">
+Update User
+</button>
+
+</div>
+
+<!-- DELETE -->
+
+<div id="deleteSection" class="section">
+
+<h2>Delete User</h2>
+
+<input type="number" id="deleteId" placeholder="User ID">
+
+<button class="action deleteBtn" onclick="deleteUser()">
+Delete User
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const BASE_URL = "https://zendeskbackend2-0.onrender.com/apps";
+
+function goDashboard(){
+    window.location.href="dashboard.html";
+}
+
+function showSection(id){
+    let sections = document.querySelectorAll(".section");
+    sections.forEach(function(sec){
+        sec.style.display = "none";
+    });
+    document.getElementById(id).style.display = "block";
+}
+
+window.onload = function(){
+    showSection("addSection");
+};
+
+function getHeaders(){
+    const headers = {
+        "Content-Type": "application/json"
+    };
+    const tokenVal = localStorage.getItem("token");
+    if (tokenVal && tokenVal !== "null" && tokenVal !== "undefined") {
+        headers["Authorization"] = "Bearer " + tokenVal;
+    }
+    return headers;
+}
+
+
+
+async function addUser(){
+
+    const data = {
+        fullName: document.getElementById("fullName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value.trim(),
+        role: document.getElementById("role").value,
+        active: document.getElementById("active").value === "true"
+    };
+
+    const res = await fetch(BASE_URL + "/pro", {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("User Added Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        const error = await res.text();
+        alert("Add Failed\n\n" + error);
+    }
+}
+
+
+async function getAll(){
+
+    const res = await fetch(BASE_URL + "/ap", {
+        method: "GET",
+        headers: getHeaders()
+    });
+
+    if(!res.ok){
+        alert("Unable to Fetch Users");
+        return;
+    }
+
+    const data = await res.json();
+
+    let html = `
+    <table>
+    <tr>
+    <th>ID</th>
+    <th>Full Name</th>
+    <th>Email</th>
+    <th>Password</th>
+    <th>Role</th>
+    <th>Active</th>
+    <th>Actions</th>
+    </tr>
+    `;
+
+    data.forEach(u => {
+        html += `
+        <tr>
+        <td>${u.id}</td>
+        <td>${u.fullName}</td>
+        <td>${u.email}</td>
+        <td>${u.password}</td>
+        <td>${u.role}</td>
+        <td>${u.active}</td>
+        <td>
+            <button style="margin:2px;padding:6px 12px;" onclick="editUserRow(${JSON.stringify(u).replace(/"/g, '&quot;')})">Edit</button>
+            <button class="deleteBtn" style="margin:2px;padding:6px 12px;" onclick="deleteUserRow(${u.id})">Delete</button>
+        </td>
+        </tr>
+        `;
+    });
+
+    html += "</table>";
+    document.getElementById("viewResult").innerHTML = html;
+}
+
+
+async function getById(){
+
+    const id = document.getElementById("searchId").value;
+
+    const res = await fetch(BASE_URL + "/ap/" + id, {
+        method: "GET",
+        headers: getHeaders()
+    });
+
+    if(!res.ok){
+        alert("User Not Found");
+        return;
+    }
+
+    const u = await res.json();
+
+    document.getElementById("searchResult").innerHTML = `
+    <table>
+    <tr>
+    <th>ID</th>
+    <th>Full Name</th>
+    <th>Email</th>
+    <th>Password</th>
+    <th>Role</th>
+    <th>Active</th>
+    <th>Actions</th>
+    </tr>
+    <tr>
+    <td>${u.id}</td>
+    <td>${u.fullName}</td>
+    <td>${u.email}</td>
+    <td>${u.password}</td>
+    <td>${u.role}</td>
+    <td>${u.active}</td>
+    <td>
+        <button style="margin:2px;padding:6px 12px;" onclick="editUserRow(${JSON.stringify(u).replace(/"/g, '&quot;')})">Edit</button>
+        <button class="deleteBtn" style="margin:2px;padding:6px 12px;" onclick="deleteUserRow(${u.id})">Delete</button>
+    </td>
+    </tr>
+    </table>
+    `;
+}
+
+function editUserRow(u) {
+    showSection("updateSection");
+    document.getElementById("updateId").value = u.id;
+    document.getElementById("updateFullName").value = u.fullName;
+    document.getElementById("updateEmail").value = u.email;
+    document.getElementById("updatePassword").value = u.password || "";
+    document.getElementById("updateRole").value = u.role;
+    document.getElementById("updateActive").value = String(u.active);
+    document.getElementById("updateSection").scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteUserRow(id) {
+    if (confirm("Are you sure you want to delete User with ID " + id + "?")) {
+        const res = await fetch(BASE_URL + "/ap/" + id, {
+            method: "DELETE",
+            headers: getHeaders()
+        });
+        if (res.ok) {
+            alert("User Deleted Successfully");
+            showSection("viewSection");
+            getAll();
+        } else {
+            alert(await res.text());
+        }
+    }
+}
+
+
+
+async function updateUser(){
+
+    const id = document.getElementById("updateId").value;
+
+    const data = {
+        fullName: document.getElementById("updateFullName").value.trim(),
+        email: document.getElementById("updateEmail").value.trim(),
+        password: document.getElementById("updatePassword").value.trim(),
+        role: document.getElementById("updateRole").value,
+        active: document.getElementById("updateActive").value === "true"
+    };
+
+    const res = await fetch(BASE_URL + "/ap/" + id, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+        alert("User Updated Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        const error = await res.text();
+        alert("Update Failed\n\n" + error);
+    }
+}
+
+
+
+async function deleteUser(){
+
+    const id = document.getElementById("deleteId").value;
+
+    const res = await fetch(BASE_URL + "/ap/" + id, {
+        method: "DELETE",
+        headers: getHeaders()
+    });
+
+    if(res.ok){
+        alert("User Deleted Successfully");
+        showSection("viewSection");
+        getAll();
+    } else {
+        const error = await res.text();
+        alert("Delete Failed\n\n" + error);
+    }
+}
+
+</script>
+
+</body>
+
+</html>
