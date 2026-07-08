@@ -26,97 +26,83 @@ height:70px;
 background:#1565c0;
 color:white;
 display:flex;
-justify-content:center;
+justify-content:space-between;
 align-items:center;
+padding:0 30px;
+}
+
+.header h1{
 font-size:28px;
 font-weight:bold;
 }
 
-.container{
+.logout-btn{
+padding:10px 20px;
+border:none;
+background:#e53935;
+color:white;
+border-radius:6px;
+cursor:pointer;
+font-size:15px;
+font-weight:bold;
+transition:.3s;
+}
 
+.logout-btn:hover{
+background:#c62828;
+}
+
+.container{
 width:95%;
 margin:30px auto;
-
 display:grid;
-
 grid-template-columns:repeat(3,1fr);
-
 gap:25px;
-
 }
 
 .card{
-
 background:white;
-
 border-radius:15px;
-
 padding:30px;
-
 text-align:center;
-
 box-shadow:0 0 10px rgba(0,0,0,.2);
-
 transition:.3s;
-
 }
 
 .card:hover{
-
 transform:translateY(-5px);
-
 }
 
 .card h2{
-
 margin-bottom:20px;
-
 color:#1565c0;
-
 }
 
 .card p{
-
 margin-bottom:25px;
-
 color:#666;
-
 }
 
 button{
-
 padding:12px 30px;
-
 border:none;
-
 background:#1565c0;
-
 color:white;
-
 border-radius:6px;
-
 cursor:pointer;
-
 font-size:16px;
-
+transition:.3s;
 }
 
 button:hover{
-
 background:#0d47a1;
-
 }
 
 .footer{
-
 margin-top:40px;
-
 text-align:center;
-
 font-size:18px;
-
 padding:20px;
-
 }
 
 </style>
@@ -127,143 +113,116 @@ padding:20px;
 
 <div class="header">
 
-Zendesk Ticket Management Dashboard
+<h1>Zendesk Ticket Management Dashboard</h1>
+
+<button class="logout-btn" onclick="logout()">
+Logout
+</button>
 
 </div>
 
 <div class="container">
 
 <div class="card">
-
 <h2>App User</h2>
-
 <p>Manage App Users</p>
-
-<button onclick="openAppUser()">
-
-Open
-
-</button>
-
+<button onclick="openAppUser()">Open</button>
 </div>
 
 <div class="card">
-
 <h2>Agent Profile</h2>
-
 <p>Manage Agent Profiles</p>
-
-<button onclick="openAgentProfile()">
-
-Open
-
-</button>
-
+<button onclick="openAgentProfile()">Open</button>
 </div>
 
 <div class="card">
-
 <h2>Escalation Record</h2>
-
 <p>Manage Escalation Records</p>
-
-<button onclick="openEscalationRecord()">
-
-Open
-
-</button>
-
+<button onclick="openEscalationRecord()">Open</button>
 </div>
 
 <div class="card">
-
 <h2>Ticket Assignment</h2>
-
 <p>Manage Ticket Assignments</p>
-
-<button onclick="openTicketAssignment()">
-
-Open
-
-</button>
-
+<button onclick="openTicketAssignment()">Open</button>
 </div>
 
 <div class="card">
-
 <h2>Ticket Comment</h2>
-
 <p>Manage Ticket Comments</p>
-
-<button onclick="openTicketComment()">
-
-Open
-
-</button>
-
+<button onclick="openTicketComment()">Open</button>
 </div>
 
 <div class="card">
-
 <h2>Support Ticket</h2>
-
 <p>Manage Support Tickets</p>
-
-<button onclick="openSupportTicket()">
-
-Open
-
-</button>
-
+<button onclick="openSupportTicket()">Open</button>
 </div>
 
 </div>
 
 <div class="footer">
+  <script>
 
-© Zendesk CRUD Dashboard
 
-</div>
-
-<script>
 
 function openAppUser(){
-
-window.location.href="appuser.html";
-
+    window.location.href = "appuser.html";
 }
 
 function openAgentProfile(){
-
-window.location.href="agentprofile.html";
-
+    window.location.href = "agentprofile.html";
 }
 
 function openEscalationRecord(){
-
-window.location.href="escalationrecord.html";
-
+    window.location.href = "escalationrecord.html";
 }
 
 function openTicketAssignment(){
-
-window.location.href="ticketassignment.html";
-
+    window.location.href = "ticketassignment.html";
 }
 
 function openTicketComment(){
-
-window.location.href="ticketcomment.html";
-
+    window.location.href = "ticketcomment.html";
 }
 
 function openSupportTicket(){
-
-window.location.href="supportticket.html";
-
+    window.location.href = "supportticket.html";
 }
+
+
+
+function logout(){
+
+    
+    localStorage.removeItem("token");
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("jwt_token");
+
+   
+    window.location.href = "index.html";
+}
+
+
+window.onload = function(){
+
+    const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("jwtToken") ||
+        localStorage.getItem("jwt_token");
+
+    if(!token){
+        alert("Please login first!");
+        window.location.href = "index.html";
+    }
+
+};
 
 </script>
 
 </body>
 </html>
+
+© Zendesk CRUD Dashboard
+
+</div>
